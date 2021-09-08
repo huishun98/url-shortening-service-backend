@@ -6,19 +6,23 @@ from flask_cors import cross_origin
 
 from settings import host, port
 from pymongo import MongoClient
+from flask_pymongo import PyMongo
 
 # SET UP FLASK APP
 app = Flask(__name__)
-if getenv('DATABASE_URL'):
+if getenv('DATABASE_URL'): # cloud
     client = MongoClient(getenv('DATABASE_URL'))
     db = client.test
-else:
+elif (getenv('MONGO_INITDB_ROOT_USERNAME') and getenv('MONGO_INITDB_ROOT_PASSWORD')): # docker
     client = MongoClient(host='mongodb',
                             port=27017, 
                             username=getenv('MONGO_INITDB_ROOT_USERNAME'), 
                             password=getenv('MONGO_INITDB_ROOT_PASSWORD'),
                             authSource="admin")
     db = client["urls_db"]
+else: # local
+    client = PyMongo(app, uri="mongodb://localhost:27017/urls_db")
+    db = client.db
 
 # store = {}
 
