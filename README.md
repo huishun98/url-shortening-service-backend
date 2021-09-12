@@ -15,8 +15,6 @@ pip install -r requirements.txt
 3. Add the following environment variables
     - FRONTEND_URL_ONE (obtained by running [frontend](https://github.com/huishun98/url-shortening-service-frontend))
     - FRONTEND_URL_TWO (obtained by running [frontend](https://github.com/huishun98/url-shortening-service-frontend))
-    - MONGO_INITDB_ROOT_USERNAME
-    - MONGO_INITDB_ROOT_PASSWORD
 4. Run the application: `python3 app.py`
 
 ## Notes for deployment on cloud
