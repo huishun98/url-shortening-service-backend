@@ -8,6 +8,8 @@ from settings import host, port
 from pymongo import MongoClient
 from flask_pymongo import PyMongo
 
+import time
+
 # SET UP FLASK APP
 app = Flask(__name__)
 if getenv('DATABASE_URL'): # cloud
@@ -33,6 +35,12 @@ def redirect_url(slug):
     result = db.urls_tb.find_one({'slug': slug})
     if not result:
         return 'Slug not found'
+    current_time = time.time()
+    if current_time - result.get('last_accessed') > 10:
+        return 'URL is deactivated due to inactivity.'
+    db.urls_tb.update_one({
+        'slug': slug,
+    }, { "$set": { 'last_accessed': current_time } })
     return redirect(result.get('raw_url'), code=302) # redirects to the specified URL
 
 @app.route('/', methods=['POST'])
@@ -43,10 +51,12 @@ def generate_short_url():
     data = request.get_json()
     raw_url = data.get('url')
     new_id = id_generator() # generate unique slug
+    current_time = time.time()
     # store[new_id] = raw_url # store as slug => raw_url
     db.urls_tb.insert_one({
         'slug': new_id,
-        'raw_url': raw_url
+        'raw_url': raw_url,
+        'last_accessed': current_time,
     })
     return new_id
 
